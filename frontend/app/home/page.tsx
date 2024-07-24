@@ -7,6 +7,7 @@ export default function HomePage() {
       <h1>Welcome to home</h1>
       <p>You are succesfully logged in, navigate to your account in keycloak:</p>
       <a href="http://keycloak:8080/realms/fast-api/account" target="_blank">Click here</a>
+      <p>Or <a href="http://fast-api:8001/auth/logout">logout</a></p>
     </div>
   );
 }

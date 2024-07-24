@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { StoreProvider } from "./StoreProvider";
+import AuthorizationContext from "./auth";
 
 import "./styles/globals.css";
 import styles from "./styles/layout.module.css";
@@ -13,7 +14,9 @@ export default function RootLayout({ children }: Props) {
     <StoreProvider>
       <html lang="en">
         <body>
+          <AuthorizationContext>
             <main className={styles.main}>{children}</main>
+          </AuthorizationContext>
         </body>
       </html>
     </StoreProvider>
