@@ -1,26 +1,22 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Response, Request
 from fastapi.responses import RedirectResponse
-from keycloak import KeycloakOpenID
+from keycloak.exceptions import KeycloakOperationError
 
-from backend.settings.base import OPEN_ID_CLIENT_ID, OPEN_ID_CLIENT_SECRET, OPEN_ID_SERVER_URL, OPEN_ID_REALM, OPEN_ID_CALLBACK_URL
+from backend.settings.base import OPEN_ID_CALLBACK_URL
+from backend.utils.auth import keycloak_openid
+from backend.utils.middleware import AuthorizationMiddleware
 
 
 app = FastAPI()
-
-keycloak_openid = KeycloakOpenID(
-    server_url=OPEN_ID_SERVER_URL,
-    client_id=OPEN_ID_CLIENT_ID,
-    realm_name=OPEN_ID_REALM,
-    client_secret_key=OPEN_ID_CLIENT_SECRET,
-)
+app.add_middleware(AuthorizationMiddleware)
 
 
-@app.get("/home")
-async def home():
-    return {"message": "Welcome to the home page!"}
+@app.get("/priv/home")
+async def home(request: Request):
+    return request.user # This will return the user object from the middleware
 
 
-@app.get("/login")
+@app.get("/auth/login")
 async def login():
     auth_url = keycloak_openid.auth_url(
         redirect_uri=OPEN_ID_CALLBACK_URL,
@@ -30,13 +26,19 @@ async def login():
     return RedirectResponse(auth_url)
 
 
-@app.get("/callback")
-async def callback(code: str, state: str):
-    print(state)
-    token = keycloak_openid.token(
-        grant_type='authorization_code',
-        code=code,
-        redirect_uri="http://localhost:8001/callback",
-    )
-    user_info = keycloak_openid.userinfo(token['access_token'])
-    return user_info
+@app.get("/auth/callback")
+async def callback(code: str, state: str, response: Response):
+    try:
+        token = keycloak_openid.token(
+            grant_type='authorization_code',
+            code=code,
+            redirect_uri=OPEN_ID_CALLBACK_URL,
+        )
+        keycloak_openid.userinfo(token['access_token'])
+    except KeycloakOperationError as e:       
+        return {"error": "Authentication error", "status": e.response_code, "message": e.error_message}
+    except Exception as e:
+        return RedirectResponse(url="/auth/login")
+    response = RedirectResponse(url="/priv/home")
+    response.set_cookie(key="session-x" , value=token['access_token'])
+    return response
