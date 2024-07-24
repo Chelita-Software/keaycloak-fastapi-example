@@ -1,19 +1,24 @@
-Keycloak - Fast API Ejemplo de implementación
+# Keycloak - Fast API Implementation example
 
-1 Ejecuta docker-compose up keycloak
+1. Run `docker-compose up keycloak`
 
-2 Modifica tu /etc/hosts y agrega
+2. Modify /etc/hosts by adding:
+
+```
 127.0.0.1   keycloak
+```
 
-3 Navega hacia tu instancia de keycloak en http://keycloak:8080
+3. Navigate to keycloak server on http://keycloak:8080
 
-4 Crea un nuevo realm, un cliente y un usuario con contraseña
+4. Create new realm, client and user (set a password).
 
-5 Agrega los datos de tu cliente a un .env en la raíz de este archivo
+5. Add your client data to .env file in the root of this repo:
 
+```
 OPEN_ID_CLIENT_ID=xxx
 OPEN_ID_CLIENT_SECRET=xxx-xxx-xxx
+````
 
-6 Ejecuta Docker-compose up de nuevo para iniciar la app y navega hacia http://localhost:8001/login
+6. Run `docker-compose up` to start the python app and navigate to http://localhost:8001/login
 
-7 Felicidades, iniciaste sesión en fastapi usando keycloak
+7. Congrats, you login in fastapi using keycloak
