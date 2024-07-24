@@ -26,7 +26,7 @@ OPEN_ID_CLIENT_ID=xxx
 OPEN_ID_CLIENT_SECRET=xxx-xxx-xxx
 ````
 
-6. Run `docker-compose up` to start the backend and frontend apps and navigate to http:/fast-api:3000/login
+6. Run `docker-compose up` to start the backend and frontend apps and navigate to http://fast-api:3000/login
 
 7. Click the login button
 

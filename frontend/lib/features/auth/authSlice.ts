@@ -4,11 +4,13 @@ import { callVerifyAuth } from "./authAPI";
 export interface DummieSliceState {
   isAuthenticated: boolean | null;
   loading: boolean;
+  data: any;
 }
 
 const initialState: DummieSliceState = {
   isAuthenticated: null,
   loading: false,
+  data: {},
 };
 
 export const authSlice = createAppSlice({
@@ -27,6 +29,7 @@ export const authSlice = createAppSlice({
         },
         fulfilled: (state, action) => {
           console.log("Auth verified");
+          state.data = action.payload;
           state.loading = false;
           state.isAuthenticated = true;
         },
