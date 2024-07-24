@@ -35,6 +35,19 @@ services:
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8001 --reload
     networks:
       - keycloak
+  
+  frontend:
+    tty: true
+    build:
+      context: ./frontend
+    restart: always
+    volumes:
+      - ./frontend:/app:delegated
+    ports:
+      - 3000:3000
+    command: npm run dev
+    networks:
+      - keycloak
 
 networks:
   keycloak:
