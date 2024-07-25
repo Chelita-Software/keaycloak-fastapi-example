@@ -9,3 +9,5 @@ OPEN_ID_CALLBACK_URL = "http://fast-api:8001/auth/callback"
 
 FRONTEND_HOME_URL = "http://fast-api:3000/home"
 FRONTEND_LOGIN_URL = "http://fast-api:3000/login"
+
+SECRET_KEY = os.getenv('SECRET_KEY')

@@ -5,6 +5,7 @@ from keycloak.exceptions import KeycloakOperationError
 
 from backend.settings.base import FRONTEND_LOGIN_URL, FRONTEND_HOME_URL, OPEN_ID_CALLBACK_URL
 from backend.utils.auth import keycloak_openid
+from backend.utils.encrypt import CookieEncrypter
 from backend.utils.middleware import AuthorizationMiddleware
 
 
@@ -52,14 +53,17 @@ async def callback(code: str, state: str, response: Response):
     except Exception as e:
         return RedirectResponse(url="/auth/login")
     response = RedirectResponse(url=FRONTEND_HOME_URL)
-    response.set_cookie(key="session-x" , value=token['access_token'], httponly=True)
-    response.set_cookie(key="session-refresh-x", value=token['refresh_token'], httponly=True)
+    session_x = CookieEncrypter.encrypt(token['access_token'])
+    session_refresh_x = CookieEncrypter.encrypt(token['refresh_token'])
+    response.set_cookie(key="session-x" , value=session_x, httponly=True)
+    response.set_cookie(key="session-refresh-x", value=session_refresh_x, httponly=True)
     return response
 
 
 @app.get("/auth/logout")
 async def logout(request: Request, response: Response):
-    refresh_token = request.cookies.get("session-refresh-x")
+    session_refresh_x = request.cookies.get("session-refresh-x")
+    refresh_token = CookieEncrypter.decrypt(session_refresh_x)
     keycloak_openid.logout(refresh_token)
     response = RedirectResponse(url=FRONTEND_LOGIN_URL)
     response.delete_cookie("session-x")
@@ -69,7 +73,8 @@ async def logout(request: Request, response: Response):
 
 @app.get("/auth/verify")
 async def verify(request: Request):
-    token = request.cookies.get("session-x")
+    session_x = request.cookies.get("session-x")
+    token = CookieEncrypter.decrypt(session_x)
     try:
         user = keycloak_openid.userinfo(token)
     except Exception as e:
